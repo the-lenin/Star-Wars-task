@@ -1,2 +1,1 @@
-aasddasdadasdasdsa
-http://hpc.name/thread/7403/p1.html
+http://www.ibm.com/developerworks/ru/library/l-python_part_10/index.html
