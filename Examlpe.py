@@ -155,6 +155,9 @@ class Client(dispatcher):
     def handle_expt(self):
         print 'client dropped connection'        
         self.close()
+
+    def handle_close(self):
+        pass
         
     def close(self):
         self.server.removeClient(self)
