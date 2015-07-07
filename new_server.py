@@ -4,6 +4,7 @@
 import sys
 import socket
 import MySQLdb
+import string
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 from thread import *
@@ -22,24 +23,32 @@ sock.listen(10)
 
 def clientthread(conn,addr):
 	conn.send('It\'s our STAR WARS Service\n')
-
-	conn.send('Menu:\n\n1)Registration\n\n2)Login\n\n')
+	conn.send("		    8888888888  888    88888\n                   88     88   88 88   88  88\n                    8888  88  88   88  88888\n                       88 88 888888888 88   88\n                88888888  88 88     88 88    888888\n\n                88  88  88   888    88888    888888\n                88  88  88  88 88   88  88  88\n                88 8888 88 88   88  88888    8888\n                 888  888 888888888 88   88     88\n                  88  88  88     88 88    8888888\n")
+	conn.send('\nMenu:\n\n1)Registration\n\n2)Login\n\n')
 	ans = conn.recv(1024)
 	print ans
 
 	if int(ans) == 1:
-		conn.send('Enter your new nick: ')
+		conn.send('Enter your new dick: ')
 		user_name = conn.recv(1024)
+		user_name = user_name[0:(len(user_name)-2)]
 		conn.send('Enter your new password: ')
 		user_pass = conn.recv(1024)
+		user_pass = user_pass[0:(len(user_pass)-2)]
 		res = Reg(user_name,user_pass)
 
 	elif int(ans) == 2:
-		conn.send('Enter your nick: ')
+		conn.send('Enter your dick: ')
 		user_name = conn.recv(1024)
+		user_name = user_name[0:(len(user_name)-2)]
 		conn.send('Enter your password: ')
 		user_pass = conn.recv(1024)
+		user_pass = user_pass[0:(len(user_pass)-2)]
 		res = Login(user_name,user_pass)
+		
+	elif int(ans) == 3:
+		sock.close()
+		exit
 
 	else:
 		conn.send('Sorry, you\'ve done something wrong.\n')
@@ -54,18 +63,21 @@ def clientthread(conn,addr):
 		if not data:
 			break
 		
-		conn.send(data)
+		conn.send(data) 
 
 def Menu(name,passwd):
 	print 'All is awesome!\n'
+	sock.close()
 
 def Reg(name,passwd):
-	result = cursor.execute("INSERT INTO base VALUES ('"+name+"','"+passwd+"');")
+	result = cursor.execute("INSERT INTO users VALUES ('"+name+"','"+passwd+"','ololol');")
+	db.commit()
+	print result
 	if result == 1:
 		return 'OK'
 
 def Login(name_u,passwd1):
-	data_s=cursor.execute("SELECT * FROM base WHERE name='"+name_u+"' and pass='"+passwd1+"';")
+	data_s=cursor.execute("SELECT * FROM users WHERE name='"+name_u+"' and passwd='"+passwd1+"';")
 	print data_s
 	if data_s == 1:
 		return 'OK'
@@ -80,4 +92,5 @@ while 1:
 	
 	start_new_thread(clientthread, (conn,addr))
 
-s.close()
+
+sock.close()
