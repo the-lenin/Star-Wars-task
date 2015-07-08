@@ -12,3 +12,6 @@ http://proft.me/2010/11/19/python-i-nosql-mongodb/  comandi pythona dlya mongo
 
 
 http://jsman.ru/mongo-book/Glava-1-Osnovy.html Horosho opisana rabota s mongo
+
+
+http://habrahabr.ru/company/xakep/blog/143909/    nosql injection
