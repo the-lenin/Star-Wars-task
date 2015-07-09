@@ -1,2 +1,3 @@
-dsfsdfsd
-asdfsdadffdafds
+import re
+regex = re.compile('^us', re.I | re.U) 
+result = db.collection.find({ 'name':regex })
