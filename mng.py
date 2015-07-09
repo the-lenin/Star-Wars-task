@@ -1,7 +1,9 @@
 #!/usr/bin/python
 #encoding: utf-8
 import os
+import re
 import sys
+import json
 import time
 import socket
 import pymongo
@@ -59,8 +61,11 @@ def clientthread(conn,addr):
 			GetToken(user_name,user_pass)
 	
 	elif int(ans) == 4:
-		print db.users.find({}, {'name':1,'passwd':0,'flag' : 0,'_id' : 0})
-		
+		table = db.users.find({}, {'name':1,'_id' : 0})
+		for i in table:
+			#res = re.findall('*\'name\' : u\'(*)\'*', i)
+			print i
+				
 	else:
 		conn.send('Sorry, you\'ve done something wrong.\n')
 		sys.exit()
@@ -70,8 +75,8 @@ def Reg(name1,passwd1):
 	#if n.count > 0:
 	#	conn.send('User with this name already exists. Sorry, but IDI NAHUY')
 	#else:
-		db.users.insert( { 'name':name1, 'passwd':passwd1 } )
-		return 'OK'
+	db.users.insert( { 'name':name1, 'passwd':passwd1 } )
+	return 'OK'
 #первая уязвимость
 #создавая пользователей с одинаковым именем мы сможем получать флаги всех пользователей с этим именем
 def Login(name_u,passwd1):
