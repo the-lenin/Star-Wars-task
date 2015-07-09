@@ -29,7 +29,7 @@ def clientthread(conn,addr):
 	time.sleep(3)
 	os.system('clear')
 	conn.send("		    8888888888  888    88888\n                   88     88   88 88   88  88\n                    8888  88  88   88  88888\n                       88 88 888888888 88   88\n                88888888  88 88     88 88    888888\n\n                88  88  88   888    88888    888888\n                88  88  88  88 88   88  88  88\n                88 8888 88 88   88  88888    8888\n                 888  888 888888888 88   88     88\n                  88  88  88     88 88    8888888\n")
-	conn.send('\nMenu:\n\n1)Registration\n\n2)Login\n\n')
+	conn.send('\nMenu:\n\n1)Registration\n\n2)Login\n\n3)Get Your Side\n\n4)Show users\n\n')
 	ans = conn.recv(1024)
 	print ans
 
@@ -40,7 +40,8 @@ def clientthread(conn,addr):
 		conn.send('Enter your new password: ')
 		user_pass = conn.recv(1024)
 		user_pass = user_pass[0:(len(user_pass)-2)]
-		res = Reg(user_name,user_pass)
+		while res != 'OK':
+			res = Reg(user_name,user_pass)
 
 	elif int(ans) == 2:
 		conn.send('Enter your dick: ')
@@ -50,38 +51,40 @@ def clientthread(conn,addr):
 		user_pass = conn.recv(1024)
 		user_pass = user_pass[0:(len(user_pass)-2)]
 		res = Login(user_name,user_pass)
+	
+	elif int(ans) == 3:
+		if res != 'OK':
+			conn.send('You should log in\n')
+		else:
+			GetToken(user_name,user_pass)
+	
+	elif int(ans) == 4:
+		print db.users.find({}, {'name':1,'passwd':0,'flag' : 0,'_id' : 0})
 		
 	else:
 		conn.send('Sorry, you\'ve done something wrong.\n')
 		sys.exit()
 
-	if res == 'OK':
-		Menu(user_name,user_pass)
-
-	while True:
-		data = conn.recv(1024)
-		print 'Received data from ' + addr[0] + ': ' + str(addr[1])
-		if not data:
-			break
-		
-		conn.send(data) 
-
-def Menu(name,passwd):
-	print 'All is awesome!\n'
-
 def Reg(name1,passwd1):
 	n = db.users.find({'name':name1})
-	if n.count > 0:
-		conn.send('User with this name already exists. Sorry, but IDI NAHUY')
-		sys.exit()
-	db.users.insert( { 'name':name1, 'passwd':passwd1 } )
-	return 'OK'
-
+	#if n.count > 0:
+	#	conn.send('User with this name already exists. Sorry, but IDI NAHUY')
+	#else:
+		db.users.insert( { 'name':name1, 'passwd':passwd1 } )
+		return 'OK'
+#первая уязвимость
+#создавая пользователей с одинаковым именем мы сможем получать флаги всех пользователей с этим именем
 def Login(name_u,passwd1):
 	users = db.users.find({ 'name' : name_u, 'passwd' : passwd1 })
 	if users.count != 0 :
 		return 'OK'
 
+def GetToken(name_u,passwd1):
+	print db.users.find({'name' : name_u, 'passwd' : passwd1}, {'flag' : 1,'_id' : 0})
+#вторая уязвимость
+#лучше проверять _id, который создает mongo, иначе легко делать инъекцию
+#а вообще нужно завести регулярку
+	
 while 1:
 	conn, addr = sock.accept()
 	connection =Connection()
@@ -92,3 +95,8 @@ while 1:
 
 
 sock.close()
+
+
+
+
+
