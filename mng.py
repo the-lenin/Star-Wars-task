@@ -1,7 +1,8 @@
 #!/usr/bin/python
 #encoding: utf-8
-
+import os
 import sys
+import time
 import socket
 import pymongo
 from pymongo import Connection
@@ -24,8 +25,9 @@ except socket.error as msg:
 sock.listen(10)
 
 def clientthread(conn,addr):
-	conn.send('	\t\t	A long time ago in a galaxy far, far away...\n\n\n')
-	#time.sleep(10)
+	conn.send('	\t\tA long time ago in a galaxy far, far away...\n\n\n')
+	time.sleep(3)
+	os.system('clear')
 	conn.send("		    8888888888  888    88888\n                   88     88   88 88   88  88\n                    8888  88  88   88  88888\n                       88 88 888888888 88   88\n                88888888  88 88     88 88    888888\n\n                88  88  88   888    88888    888888\n                88  88  88  88 88   88  88  88\n                88 8888 88 88   88  88888    8888\n                 888  888 888888888 88   88     88\n                  88  88  88     88 88    8888888\n")
 	conn.send('\nMenu:\n\n1)Registration\n\n2)Login\n\n')
 	ans = conn.recv(1024)
