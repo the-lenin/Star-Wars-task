@@ -33,7 +33,7 @@ def clientthread(conn,addr):
 	res = ''
 	while True:
 		conn.send("\n\n\n		    8888888888  888    88888\n                   88     88   88 88   88  88\n                    8888  88  88   88  88888\n                       88 88 888888888 88   88\n                88888888  88 88     88 88    888888\n\n                88  88  88   888    88888    888888\n                88  88  88  88 88   88  88  88\n                88 8888 88 88   88  88888    8888\n                 888  888 888888888 88   88     88\n                  88  88  88     88 88    8888888\n")
-		conn.send('\nMenu:\n\n1)Registration\n\n2)Login\n\n3)Get Your Side\n\n4)Show users\n\n')
+		conn.send('\nMenu:\n\n1)Registration\n\n2)Login\n\n3)Get Your Side\n\n4)Show your token\n\n5)Show users\n\n')
 		ans = conn.recv(1024)
 		print ans
 		try:
@@ -59,14 +59,23 @@ def clientthread(conn,addr):
 			user_pass = conn.recv(1024)
 			user_pass = user_pass[0:(len(user_pass)-2)]
 			res = Login(user_name,user_pass)
-	
+
 		elif int(ans) == 3:
 			if res != 'OK':
 				conn.send('You should log in\n')
+				time.sleep(3)
 			else:
-				GetToken(user_name,user_pass)
-	
+				comment = conn.recv(1024)
+				GetToken(user_name,user_pass,comment[0:len(comment)-2])
+		
 		elif int(ans) == 4:
+			if res != 'OK':
+				conn.send('You should log in\n')
+				time.sleep(3)
+			else:
+				ShowToken(user_name,user_pass)
+
+		elif int(ans) == 5:
 			table = db.users.find({}, {'name':1,'_id' : 0})
 			for i in table:
 				x=str(i)
@@ -88,20 +97,36 @@ def Reg(name1,passwd1):
 #первая уязвимость
 #создавая пользователей с одинаковым именем мы сможем получать флаги всех пользователей с этим именем
 def Login(name_u,passwd1):
-	users = db.users.find({ 'name' : name_u, 'passwd' : passwd1 })
-	if users.count != 0 :
+	fraer = db.users.find({ 'name' : name_u, 'passwd' : passwd1 }).count()
+	print fraer
+	if fraer != 0 :
 		conn.send('You\'ve successfully logged in!')
+		time.sleep(3)
 		return 'OK'
 	else:
 		conn.send('Shel bi ti otsuda, petushok')
+		time.sleep(3)
 		return 'I see you, suka'
 
-def GetToken(name_u,passwd1):
-	print db.users.find({'name' : name_u, 'passwd' : passwd1}, {'flag' : 1,'_id' : 0}) 
+def ShowToken(name_u,passwd1):
+	for i in db.users.find({'name' : name_u, 'passwd' : passwd1},{'flag': 1, '_id': 0}):
+		try:
+			i['flag']
+		except:
+			conn.send('Sorry, but you haven\'t made a comment yet.')
+			time.sleep(3)
+		else:
+			conn.send(i['flag'])
+			time.sleep(3)
 #вторая уязвимость
 #лучше проверять _id, который создает mongo, иначе легко делать инъекцию
 #а вообще нужно завести регулярку
-	
+
+def GetToken(name_u, passwd, comment):
+	db.users.update({'name': name_u, 'passwd': passwd},{'$set': {'flag': comment}}, True)
+	conn.send('Your comment has been successfully added to our base! Thank you!')
+	time.sleep(3)
+
 while 1:
 	conn, addr = sock.accept()
 	connection =Connection()
@@ -109,7 +134,6 @@ while 1:
 	print 'Connected with ' + addr[0] + ': ' + str(addr[1])
 	
 	start_new_thread(clientthread, (conn,addr))
-
 
 sock.close()
 
