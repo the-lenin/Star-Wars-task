@@ -33,7 +33,7 @@ def clientthread(conn,addr):
 	res = ''
 	while True:
 		conn.send("\n\n\n		    8888888888  888    88888\n                   88     88   88 88   88  88\n                    8888  88  88   88  88888\n                       88 88 888888888 88   88\n                88888888  88 88     88 88    888888\n\n                88  88  88   888    88888    888888\n                88  88  88  88 88   88  88  88\n                88 8888 88 88   88  88888    8888\n                 888  888 888888888 88   88     88\n                  88  88  88     88 88    8888888\n")
-		conn.send('\nMenu:\n\n1)Registration\n\n2)Login\n\n3)Get Your Side\n\n4)Show your token\n\n5)Show users\n\n')
+		conn.send('\nMenu:\n\n1)Registration\n\n2)Login\n\n3)Get Your Side\n\n4)Show your token\n\n5)Show users\n')
 		ans = conn.recv(1024)
 		print ans
 		try:
@@ -78,11 +78,11 @@ def clientthread(conn,addr):
 		elif int(ans) == 5:
 			table = db.users.find({}, {'name':1,'_id' : 0})
 			for i in table:
-				x=str(i)
-				x=x[12:len(x)-2]        #хотел поковырять через регулярные, а потом понял...
-				conn.send(x+'\n')		
+				conn.send(i['name']+'\n')	
+			time.sleep(3)	
 		else:
 			conn.send('Sorry, you\'ve done something wrong.\n')
+			time.sleep(3)
 			sys.exit()
 
 def Reg(name1,passwd1):
@@ -116,7 +116,7 @@ def ShowToken(name_u,passwd1):
 			conn.send('Sorry, but you haven\'t made a comment yet.')
 			time.sleep(3)
 		else:
-			conn.send(i['flag'])
+			conn.send(i['flag']+'\n')
 			time.sleep(3)
 #вторая уязвимость
 #лучше проверять _id, который создает mongo, иначе легко делать инъекцию
