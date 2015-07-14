@@ -28,61 +28,69 @@ sock.listen(10)
 
 def clientthread(conn,addr):
 	conn.send('	\t\tA long time ago in a galaxy far, far away...')
-	time.sleep(3)
 	os.system('clear')
+	time.sleep(3)
 	res = ''
 	while True:
-		conn.send("\n\n\n		    8888888888  888    88888\n                   88     88   88 88   88  88\n                    8888  88  88   88  88888\n                       88 88 888888888 88   88\n                88888888  88 88     88 88    888888\n\n                88  88  88   888    88888    888888\n                88  88  88  88 88   88  88  88\n                88 8888 88 88   88  88888    8888\n                 888  888 888888888 88   88     88\n                  88  88  88     88 88    8888888\n")
-		conn.send('\nMenu:\n\n1)Registration\n\n2)Login\n\n3)Get Your Side\n\n4)Show your token\n\n5)Show users\n')
-		ans = conn.recv(1024)
-		print ans
 		try:
-			int(ans)
+			conn.send("\n\n\n		    8888888888  888    88888\n                   88     88   88 88   88  88\n                    8888  88  88   88  88888\n                       88 88 888888888 88   88\n                88888888  88 88     88 88    888888\n\n                88  88  88   888    88888    888888\n                88  88  88  88 88   88  88  88\n                88 8888 88 88   88  88888    8888\n                 888  888 888888888 88   88     88\n                  88  88  88     88 88    8888888\n")
+			conn.send('\nMenu:\n\n1)Registration\n\n2)Login\n\n3)Get Your Side\n\n4)Show your token\n\n5)Show users\n')
+			ans = conn.recv(1024)
+			print ans
+			try:
+				int(ans)
+			except:
+				conn.send('Ti hotel menya trahnut?! Da ya sam tebya trahnu!')
+				sys.exit()
+
+			if int(ans) == 1:
+				conn.send('Enter your new dick: ')
+				user_name = conn.recv(1024)
+				user_name = user_name[0:(len(user_name)-2)]
+				print user_name
+				conn.send('Enter your new password: ')
+				user_pass = conn.recv(1024)
+				user_pass = user_pass[0:(len(user_pass)-2)]
+				print user_pass
+				res = Reg(user_name,user_pass)
+
+			elif int(ans) == 2:
+				conn.send('Enter your dick: ')
+				user_name = conn.recv(1024)
+				user_name = user_name[0:(len(user_name)-2)]
+				conn.send('Enter your password: ')
+				user_pass = conn.recv(1024)
+				user_pass = user_pass[0:(len(user_pass)-2)]
+				print user_name
+				print user_pass
+				res = Login(user_name,user_pass)
+
+			elif int(ans) == 3:
+				if res != 'OK':
+					conn.send('You should log in\n')
+	#				time.sleep(3)
+				else:
+					comment = conn.recv(1024)
+					GetToken(user_name,user_pass,comment[0:len(comment)-2])
+			
+			elif int(ans) == 4:
+				if res != 'OK':
+					conn.send('You should log in\n')
+	#				time.sleep(3)
+				else:
+					ShowToken(user_name,user_pass)
+
+			elif int(ans) == 5:
+				table = db.users.find({}, {'name':1,'_id' : 0})
+				for i in table:
+					conn.send(i['name']+'\n')	
+	#			time.sleep(3)	
+			else:
+				conn.send('Sorry, you\'ve done something wrong.\n')
+	#			time.sleep(3)
+				sys.exit()
 		except:
-			conn.send('Ti hotel menya trahnut?! Da ya sam tebya trahnu!')
-			sys.exit()
-
-		if int(ans) == 1:
-			conn.send('Enter your new dick: ')
-			user_name = conn.recv(1024)
-			user_name = user_name[0:(len(user_name)-2)]
-			conn.send('Enter your new password: ')
-			user_pass = conn.recv(1024)
-			user_pass = user_pass[0:(len(user_pass)-2)]
-			res = Reg(user_name,user_pass)
-
-		elif int(ans) == 2:
-			conn.send('Enter your dick: ')
-			user_name = conn.recv(1024)
-			user_name = user_name[0:(len(user_name)-2)]
-			conn.send('Enter your password: ')
-			user_pass = conn.recv(1024)
-			user_pass = user_pass[0:(len(user_pass)-2)]
-			res = Login(user_name,user_pass)
-
-		elif int(ans) == 3:
-			if res != 'OK':
-				conn.send('You should log in\n')
-#				time.sleep(3)
-			else:
-				comment = conn.recv(1024)
-				GetToken(user_name,user_pass,comment[0:len(comment)-2])
-		
-		elif int(ans) == 4:
-			if res != 'OK':
-				conn.send('You should log in\n')
-#				time.sleep(3)
-			else:
-				ShowToken(user_name,user_pass)
-
-		elif int(ans) == 5:
-			table = db.users.find({}, {'name':1,'_id' : 0})
-			for i in table:
-				conn.send(i['name']+'\n')	
-#			time.sleep(3)	
-		else:
-			conn.send('Sorry, you\'ve done something wrong.\n')
-#			time.sleep(3)
+			print 'Client disconnected (zassal)'
 			sys.exit()
 
 def Reg(name1,passwd1):
@@ -123,7 +131,7 @@ def ShowToken(name_u,passwd1):
 #а вообще нужно завести регулярку
 
 def GetToken(name_u, passwd, comment):
-	db.users.update({'name': name_u, 'passwd' : re.compile("^"+passwd1)},{'$set': {'flag': comment}})
+	db.users.update({'name': name_u, 'passwd' : re.compile("^"+passwd)},{'$set': {'flag': comment}})
 	conn.send('Your comment has been successfully added to our base! Thank you!')
 #	time.sleep(3)
 
