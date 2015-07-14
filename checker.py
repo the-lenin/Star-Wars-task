@@ -5,7 +5,7 @@ import random
 import string
 import sys
 import time
-import socks
+import socket
 import re
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -26,20 +26,19 @@ def put_flag(ip, flag):
 	user = id_generator()
 	passwd = passwd_generator()	
 	try:
-		socket = socks.socksocket()                                                           
-		socket.connect((ip , 8888))  
-		a = socket.recv(1024)
-		socket.send("1\n")
-		a = socket.recv(1024)
-		socket.send(user + "\n")
-		a = socket.recv(1024)
-		socket.send(passwd + "\n")
-		a = socket.recv(1024)
-		socket.send("3\n")
-		a = socket.recv(1024)
-		socket.send(flag + "\n")
-		a = socket.recv(1024)
-		socket.close()
+		sock = socket.socket()                                                           
+		sock.connect(('localhost', 8888))  
+		a = sock.recv(10240)
+		sock.send("1\n")
+		a = sock.recv(10240)
+		sock.send(user + "\n")
+		a = sock.recv(10240)
+		sock.send(passwd + "\n")
+		a = sock.recv(10240)
+		sock.send("3\n")
+		sock.send(flag + "\n")
+		a = sock.recv(10240)
+		sock.close()
 
 		if len(a) < 1:
 			status["error"].append(4)
@@ -53,30 +52,34 @@ def put_flag(ip, flag):
 
 def check_flag(ip, user, passwd, flag):
 	try:
-		socket = socks.socksocket()                                                           
-		socket.connect((ip , 8888))  
-		a = socket.recv(1024)
-		socket.send("2\n")
-		a = socket.recv(1024)
-		socket.send(user + "\n")
-		a = socket.recv(1024)
-		socket.send(passwd + "\n")
-		a = socket.recv(1024)
+		sock = socket.socket()                                                           
+		sock.connect(('localhost', 8888))  
+		a = sock.recv(10240)
+		sock.send("2\n")
+		a = sock.recv(10240)
+		sock.send(user + "\n")
+		a = sock.recv(10240)
+		sock.send(passwd + "\n")
+		a = sock.recv(10240)
 	
 		if "petushok" in a:
 			status["error"].append(4)
+			sock.close()
 			return False
 
-		a = socket.recv(1024)
-		socket.send("4\n")
-		a = socket.recv(1024)
+		a = sock.recv(10240)
+		sock.send("4\n")
+		a = sock.recv(10240)
 		if flag in a:
+			sock.close()
 			return True
 		else:
 			status["error"].append(3)
+			sock.close()
 			return False
 	except:
 		status["error"].append(4)
+		sock.close()
 		return False
 
 if not len(sys.argv) == 6:
@@ -102,5 +105,7 @@ if res2 == False:
 	status["put"] = 0
 else:
 	status["info"] = res2
+
+
 
 print json.dumps(status)
