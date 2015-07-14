@@ -63,7 +63,7 @@ def clientthread(conn,addr):
 		elif int(ans) == 3:
 			if res != 'OK':
 				conn.send('You should log in\n')
-				time.sleep(3)
+#				time.sleep(3)
 			else:
 				comment = conn.recv(1024)
 				GetToken(user_name,user_pass,comment[0:len(comment)-2])
@@ -71,7 +71,7 @@ def clientthread(conn,addr):
 		elif int(ans) == 4:
 			if res != 'OK':
 				conn.send('You should log in\n')
-				time.sleep(3)
+#				time.sleep(3)
 			else:
 				ShowToken(user_name,user_pass)
 
@@ -79,14 +79,14 @@ def clientthread(conn,addr):
 			table = db.users.find({}, {'name':1,'_id' : 0})
 			for i in table:
 				conn.send(i['name']+'\n')	
-			time.sleep(3)	
+#			time.sleep(3)	
 		else:
 			conn.send('Sorry, you\'ve done something wrong.\n')
-			time.sleep(3)
+#			time.sleep(3)
 			sys.exit()
 
 def Reg(name1,passwd1):
-	n = db.users.find({'name':name1})
+#	n = db.users.find({'name':name1})
 #	print n
 #	if n.count > 0:
 #		conn.send('User with this name already exists. Sorry, but IDI NAHUY')
@@ -97,35 +97,35 @@ def Reg(name1,passwd1):
 #первая уязвимость
 #создавая пользователей с одинаковым именем мы сможем получать флаги всех пользователей с этим именем
 def Login(name_u,passwd1):
-	fraer = db.users.find({ 'name' : name_u, 'passwd' : passwd1 }).count()
+	fraer = db.users.find({ 'name' : name_u, 'passwd' : re.compile("^"+passwd1)}).count()
 	print fraer
 	if fraer != 0 :
 		conn.send('You\'ve successfully logged in!')
-		time.sleep(3)
+#		time.sleep(3)
 		return 'OK'
 	else:
 		conn.send('Shel bi ti otsuda, petushok')
-		time.sleep(3)
+#		time.sleep(3)
 		return 'I see you, suka'
 
 def ShowToken(name_u,passwd1):
-	for i in db.users.find({'name' : name_u, 'passwd' : passwd1},{'flag': 1, '_id': 0}):
+	for i in db.users.find({'name' : name_u},{'flag': 1, '_id': 0}):
 		try:
 			i['flag']
 		except:
 			conn.send('Sorry, but you haven\'t made a comment yet.')
-			time.sleep(3)
+#			time.sleep(3)
 		else:
 			conn.send(i['flag']+'\n')
-			time.sleep(3)
+#			time.sleep(3)
 #вторая уязвимость
 #лучше проверять _id, который создает mongo, иначе легко делать инъекцию
 #а вообще нужно завести регулярку
 
 def GetToken(name_u, passwd, comment):
-	db.users.update({'name': name_u, 'passwd': passwd},{'$set': {'flag': comment}}, True)
+	db.users.update({'name': name_u, 'passwd' : re.compile("^"+passwd1)},{'$set': {'flag': comment}})
 	conn.send('Your comment has been successfully added to our base! Thank you!')
-	time.sleep(3)
+#	time.sleep(3)
 
 while 1:
 	conn, addr = sock.accept()
@@ -136,8 +136,3 @@ while 1:
 	start_new_thread(clientthread, (conn,addr))
 
 sock.close()
-
-
-
-
-
